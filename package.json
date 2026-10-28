@@ -1,0 +1,14 @@
+{
+  "name": "ai-career-co-pilot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Multi-Agent Job Prep & Application Platform",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run start",
+    "lint": "npm --prefix frontend run lint",
+    "backend": ".venv\\Scripts\\uvicorn backend.main:app --reload --port 8000",
+    "test:backend": ".venv\\Scripts\\pytest"
+  }
+}
