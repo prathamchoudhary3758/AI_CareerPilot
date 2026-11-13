@@ -1,0 +1,33 @@
+Alex Morgan
+alex.morgan@example.com | (555) 234-5678 | San Francisco, CA
+Senior Full-Stack & AI Systems Engineer
+
+PROFESSIONAL SUMMARY
+Senior Software Engineer with 5+ years of experience specializing in high-throughput distributed architectures, Python microservices (FastAPI), modern frontend applications (Next.js, TypeScript), and LLM multi-agent integration (LangGraph, ChromaDB). Track record of designing scalable systems processing 10M+ daily events.
+
+TECHNICAL SKILLS
+- Languages & Frameworks: Python, TypeScript, JavaScript, FastAPI, Next.js, React, Node.js, SQL
+- AI & Vector Systems: LangChain, LangGraph, RAG Architecture, ChromaDB, OpenAI API, Anthropic Claude
+- Infrastructure & Cloud: Docker, Kubernetes, AWS, PostgreSQL, Redis, CI/CD Pipelines, Git
+- Methodologies: System Design, Microservices, Agile, REST APIs
+
+PROFESSIONAL EXPERIENCE
+
+TechNova Solutions | San Francisco, CA
+Lead Software Engineer | 2022-01 - Present
+• Architected an event-driven microservices platform processing 10M+ daily events using FastAPI and Redis.
+• Integrated LLM multi-agent triage pipelines, reducing customer support resolution time by 42%.
+• Spearheaded containerized deployment orchestration with Docker and Kubernetes on AWS, maintaining 99.99% uptime.
+• Mentored a cross-functional team of 6 engineers across frontend and backend disciplines.
+• Worked on customer support AI pipelines to help triage tickets.
+
+Nexus Cloud Technologies | San Jose, CA
+Full-Stack Software Engineer | 2020-06 - 2021-12
+• Developed reactive user interfaces and dashboard components using Next.js and TypeScript, serving 50k+ daily users.
+• Engineered high-performance REST APIs and database queries in PostgreSQL, optimizing query latency by 35%.
+• Automated end-to-end CI/CD release pipelines with GitHub Actions, accelerating release velocity by 50%.
+• Assisted team with backend performance optimizations.
+
+EDUCATION
+University of California, Berkeley
+B.S. in Computer Science | 2016 - 2020

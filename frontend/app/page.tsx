@@ -1,19 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { 
-  FileText, 
-  Briefcase, 
-  PenTool, 
-  Mic, 
-  Bot, 
-  ArrowRight, 
-  CheckCircle2, 
-  Sparkles, 
-  Activity, 
-  Zap, 
-  ShieldCheck, 
-  Layers 
+import {
+  FileText,
+  Briefcase,
+  PenTool,
+  Mic,
+  Bot,
+  ArrowRight,
+  CheckCircle2,
+  Sparkles,
+  Activity,
+  Zap,
+  ShieldCheck,
+  Layers
 } from "lucide-react";
 import BackendStatusBadge from "@/components/BackendStatusBadge";
 
@@ -85,12 +85,12 @@ export default function DashboardPage() {
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             <span>Autonomous Career Acceleration Engine</span>
           </div>
-          
+
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
             AI Career Co-Pilot <br />
             <span className="text-gradient-cyan">Multi-Agent Orchestration</span>
           </h1>
-          
+
           <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
             An intelligent pipeline designed to ingest your resume, semantically match top-tier roles,
             generate fact-checked application collateral, and conduct rubric-scored mock interviews.
@@ -173,11 +173,10 @@ export default function DashboardPage() {
             return (
               <div
                 key={p.phase}
-                className={`relative group rounded-2xl glass-panel p-6 border transition-all duration-300 flex flex-col justify-between ${
-                  p.active
+                className={`relative group rounded-2xl glass-panel p-6 border transition-all duration-300 flex flex-col justify-between ${p.active
                     ? "border-cyan-500/40 shadow-lg shadow-cyan-500/10 bg-slate-900/80"
                     : "border-white/[0.06] hover:border-slate-600/50 bg-slate-900/40"
-                }`}
+                  }`}
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -185,11 +184,10 @@ export default function DashboardPage() {
                       {p.phase}
                     </span>
                     <span
-                      className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
-                        p.active
+                      className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${p.active
                           ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1"
                           : "bg-slate-800 text-slate-400"
-                      }`}
+                        }`}
                     >
                       {p.active && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
                       {p.status}

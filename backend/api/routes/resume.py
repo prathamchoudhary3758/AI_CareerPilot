@@ -1,36 +1,122 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
-from typing import Optional
-from backend.models.schemas import ResumeAnalysisResult, CandidateProfile, ScoreBreakdown, BulletRewriteSuggestion
+from typing import Optional, List
+from backend.models.schemas import (
+    ResumeAnalysisResult,
+    ResumeAnalysisRequest,
+    CandidateProfile,
+    ScoreBreakdown,
+    BulletRewriteSuggestion
+)
 from backend.core.state import session_manager
+from backend.tools.pdf_parser import extract_text_from_bytes
+from backend.agents.resume_agent import resume_agent, DEFAULT_TARGET_JOB
 
 router = APIRouter(prefix="/resume", tags=["Resume"])
 
-@router.post("/upload")
+
+@router.post("/upload", response_model=ResumeAnalysisResult)
 async def upload_resume(
     file: UploadFile = File(...),
-    session_id: Optional[str] = Form("default-session")
+    session_id: Optional[str] = Form("default-session"),
+    target_job_title: Optional[str] = Form("Senior AI Application Engineer"),
+    target_job_description: Optional[str] = Form(None)
 ):
-    """Upload and record a resume file."""
-    if not file.filename.endswith(('.pdf', '.docx', '.txt')):
+    """Uploads a resume file (PDF, DOCX, or TXT), extracts text with PyMuPDF,
+
+    and runs the RAG ATS scoring agent.
+    """
+    if not file.filename.lower().endswith(('.pdf', '.docx', '.txt')):
         raise HTTPException(status_code=400, detail="Only PDF, DOCX, and TXT files are supported.")
         
     content = await file.read()
     file_size_kb = round(len(content) / 1024, 2)
     
+    # Broadcast upload event
     await session_manager.broadcast_event(
         session_id=session_id,
         event_type="resume_uploaded",
-        message=f"Received resume file '{file.filename}' ({file_size_kb} KB)",
+        message=f"Received resume '{file.filename}' ({file_size_kb} KB)",
         data={"filename": file.filename, "size_kb": file_size_kb}
     )
     
-    return {
-        "status": "success",
-        "session_id": session_id,
-        "filename": file.filename,
-        "size_kb": file_size_kb,
-        "message": "Resume uploaded successfully"
-    }
+    # Extract text using PyMuPDF / python-docx
+    raw_text = extract_text_from_bytes(content, file.filename)
+    if not raw_text or len(raw_text.strip()) < 20:
+        raise HTTPException(
+            status_code=422,
+            detail="Unable to extract readable text from document. Please ensure the file is not an image-only scan or corrupted."
+        )
+
+    # Build target job context
+    target_job = dict(DEFAULT_TARGET_JOB)
+    if target_job_title:
+        target_job["title"] = target_job_title
+    if target_job_description:
+        target_job["description"] = target_job_description
+
+    # Execute Resume Agent workflow
+    analysis_result = await resume_agent.analyze_resume(
+        raw_text=raw_text,
+        session_id=session_id,
+        target_job=target_job
+    )
+    
+    return analysis_result
+
+
+@router.post("/analyze", response_model=ResumeAnalysisResult)
+async def analyze_resume_text(request: ResumeAnalysisRequest):
+    """Analyzes or re-scores a resume against a target job description."""
+    session = session_manager.get_session(request.session_id)
+    
+    raw_text = request.raw_resume_text
+    if not raw_text:
+        # Check if text was previously uploaded in session
+        existing_profile = session.get("resume_data")
+        if existing_profile and existing_profile.get("raw_text"):
+            raw_text = existing_profile["raw_text"]
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="No resume text provided and no previously uploaded resume found in this session."
+            )
+
+    target_job = dict(DEFAULT_TARGET_JOB)
+    if request.target_job_title:
+        target_job["title"] = request.target_job_title
+    if request.target_job_description:
+        target_job["description"] = request.target_job_description
+    if request.target_requirements:
+        target_job["requirements"] = request.target_requirements
+
+    analysis_result = await resume_agent.analyze_resume(
+        raw_text=raw_text,
+        session_id=request.session_id,
+        target_job=target_job
+    )
+
+    return analysis_result
+
+
+@router.get("/profile/{session_id}", response_model=CandidateProfile)
+async def get_candidate_profile(session_id: str):
+    """Retrieves the extracted candidate profile for a given session."""
+    session = session_manager.get_session(session_id)
+    profile_data = session.get("resume_data")
+    if not profile_data:
+        raise HTTPException(status_code=404, detail=f"No profile found for session '{session_id}'")
+    return CandidateProfile(**profile_data)
+
+
+@router.get("/analysis/{session_id}", response_model=ResumeAnalysisResult)
+async def get_session_analysis(session_id: str):
+    """Retrieves the analysis result for a given session."""
+    session = session_manager.get_session(session_id)
+    analysis_data = session.get("analysis_results")
+    if not analysis_data:
+        raise HTTPException(status_code=404, detail=f"No analysis found for session '{session_id}'")
+    return ResumeAnalysisResult(**analysis_data)
+
 
 @router.get("/sample-analysis", response_model=ResumeAnalysisResult)
 async def get_sample_analysis():

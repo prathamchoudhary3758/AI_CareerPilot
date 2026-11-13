@@ -129,18 +129,18 @@ AI Career Co-Pilot/
 
 ## 5-Phase Implementation Roadmap
 
-### Phase 1: Foundation, Full-Stack Scaffolding & Design System
+### Phase 1: Foundation, Full-Stack Scaffolding & Design System [COMPLETED]
 - **Backend**: FastAPI app setup, CORS, health check, directory structure, core config & session state manager.
 - **Frontend**: Next.js 14 (App Router) + Tailwind CSS + Lucide icons + responsive dark glassmorphic design system.
 - **Data Models**: Pydantic schemas for Resumes, Job Descriptions, Scores, Cover Letters, and Interview Sessions.
 - **UI Shell**: Application navigation, dashboard layout, and placeholder views for all sub-modules.
 - **Deliverable**: Runnable full-stack skeleton with interconnected API health check and modern UI shell.
 
-### Phase 2: Resume Ingestion, Extraction & RAG Scoring Engine
-- **Parser Engine**: PyMuPDF (`fitz`) text extraction for PDF/DOCX resumes.
-- **Profile Extraction**: Structured candidate profile generation (skills, work history, education, achievements).
-- **RAG Knowledge Base**: Local ChromaDB instance seeded with resume best practices and ATS optimization rules.
-- **Scoring & Rewrites**: 0–100 match scoring against target JD with sub-scores, gap analysis, and AI bullet rewrites.
+### Phase 2: Resume Ingestion, Extraction & RAG Scoring Engine [COMPLETED]
+- **Parser Engine**: PyMuPDF (`pymupdf`) and python-docx text & layout extraction for PDF/DOCX/TXT resumes.
+- **Profile Extraction**: Structured candidate profile generation (contact info, 40+ skills taxonomy, work history, education).
+- **RAG Knowledge Base**: ATS knowledge base seeded with optimization rules, action verb analysis, and Google XYZ impact metrics.
+- **Scoring & Rewrites**: 0–100 match scoring against target JD with 4 sub-scores, gap analysis, and AI bullet rewrites.
 - **Frontend UI**: Drag-and-drop resume upload zone, extracted profile preview, visual ATS score gauge, and interactive rewrite suggestions.
 - **Deliverable**: Working Resume Analyzer module where users upload a resume and get instant deep analysis.
 
@@ -216,3 +216,10 @@ AI Career Co-Pilot/
 - Upload a real PDF resume → full pipeline runs → all 5 sections populated
 - SSE activity feed shows every agent handoff in real time
 - Cover letter guardrail flags a hallucinated company name
+
+# 1. Run the Frontend dev server
+npm run dev
+
+# 2. In another terminal, run the FastAPI Backend
+npm run backend
+# or: .\.venv\Scripts\uvicorn backend.main:app --reload --port 8000

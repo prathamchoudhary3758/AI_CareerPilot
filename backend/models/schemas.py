@@ -68,6 +68,13 @@ class BulletRewriteSuggestion(BaseModel):
     reason: str
     impact_metric_added: bool = False
 
+class ResumeAnalysisRequest(BaseModel):
+    session_id: str = "default-session"
+    target_job_title: Optional[str] = "Senior AI Application Engineer"
+    target_job_description: Optional[str] = None
+    target_requirements: List[str] = Field(default_factory=list)
+    raw_resume_text: Optional[str] = None
+
 class ResumeAnalysisResult(BaseModel):
     profile: CandidateProfile
     score_breakdown: ScoreBreakdown

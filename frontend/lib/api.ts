@@ -29,6 +29,7 @@ export interface CandidateProfile {
     field_of_study?: string;
     graduation_year?: string;
   }>;
+  raw_text?: string;
 }
 
 export interface ResumeAnalysisResult {
@@ -120,6 +121,72 @@ export async function fetchHealth(): Promise<HealthResponse> {
 export async function fetchSampleAnalysis(): Promise<ResumeAnalysisResult> {
   const res = await fetch(`${API_BASE_URL}/api/resume/sample-analysis`, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to fetch sample analysis: ${res.status}`);
+  return res.json();
+}
+
+export async function uploadResume(
+  file: File,
+  sessionId: string = "default-session",
+  targetJobTitle?: string,
+  targetJobDescription?: string
+): Promise<ResumeAnalysisResult> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("session_id", sessionId);
+  if (targetJobTitle) {
+    formData.append("target_job_title", targetJobTitle);
+  }
+  if (targetJobDescription) {
+    formData.append("target_job_description", targetJobDescription);
+  }
+
+  const res = await fetch(`${API_BASE_URL}/api/resume/upload`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Upload failed with status: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function analyzeResumeText(payload: {
+  sessionId?: string;
+  targetJobTitle?: string;
+  targetJobDescription?: string;
+  targetRequirements?: string[];
+  rawResumeText?: string;
+}): Promise<ResumeAnalysisResult> {
+  const res = await fetch(`${API_BASE_URL}/api/resume/analyze`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      session_id: payload.sessionId || "default-session",
+      target_job_title: payload.targetJobTitle,
+      target_job_description: payload.targetJobDescription,
+      target_requirements: payload.targetRequirements || [],
+      raw_resume_text: payload.rawResumeText,
+    }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Analysis failed with status: ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function fetchCandidateProfile(sessionId: string): Promise<CandidateProfile> {
+  const res = await fetch(`${API_BASE_URL}/api/resume/profile/${sessionId}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to fetch profile: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchResumeAnalysis(sessionId: string): Promise<ResumeAnalysisResult> {
+  const res = await fetch(`${API_BASE_URL}/api/resume/analysis/${sessionId}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to fetch analysis: ${res.status}`);
   return res.json();
 }
 

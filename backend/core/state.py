@@ -8,7 +8,13 @@ class SessionStateManager:
     def __init__(self):
         self._sessions: Dict[str, Dict[str, Any]] = {}
         self._event_queues: Dict[str, List[asyncio.Queue]] = {}
-        self._lock = asyncio.Lock()
+        self._lock: Optional[asyncio.Lock] = None
+
+    @property
+    def lock(self) -> asyncio.Lock:
+        if self._lock is None:
+            self._lock = asyncio.Lock()
+        return self._lock
 
     def get_session(self, session_id: str) -> Dict[str, Any]:
         if session_id not in self._sessions:
