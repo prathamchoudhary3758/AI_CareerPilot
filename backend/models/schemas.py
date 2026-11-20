@@ -96,6 +96,10 @@ class JobMatchResult(BaseModel):
     match_percentage: int = Field(..., ge=0, le=100)
     reasoning: JobMatchReasoning
 
+class SelectJobRequest(BaseModel):
+    session_id: str = "default-session"
+    job_id: str
+
 # --- Cover Letter Models ---
 class CoverLetterRequest(BaseModel):
     session_id: str

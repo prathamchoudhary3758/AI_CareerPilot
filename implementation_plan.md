@@ -144,11 +144,11 @@ AI Career Co-Pilot/
 - **Frontend UI**: Drag-and-drop resume upload zone, extracted profile preview, visual ATS score gauge, and interactive rewrite suggestions.
 - **Deliverable**: Working Resume Analyzer module where users upload a resume and get instant deep analysis.
 
-### Phase 3: Semantic Job Matching & AI Reasoning Engine
-- **Job Source**: Structured job dataset & API integration (JSearch / Adzuna with mock fallback for offline dev).
-- **Semantic Matching**: Embeddings generation (`text-embedding-3-small` / local) and cosine similarity ranking.
-- **AI Fit Reasoning**: LLM explanation generating "Why you're a fit", identified skill gaps, and quick-apply tips.
-- **Frontend UI**: Job discovery board with match percentages, fit tags, filters, expandable reasoning, and job selection for downstream agents.
+### Phase 3: Semantic Job Matching & AI Reasoning Engine [COMPLETED]
+- **Job Source**: Structured job dataset & API integration (JSearch / Adzuna with curated fallback).
+- **Semantic Matching**: Embeddings generation (`text-embedding-3-small` / 384-dim TF-IDF local unit vector) and cosine similarity ranking.
+- **AI Fit Reasoning**: Transparent explanation generating "Why you're a fit", identified skill gaps, and quick-apply tips.
+- **Frontend UI**: Job discovery board with match percentages, fit tags, filters, expandable reasoning, and target job selection for downstream agents.
 - **Deliverable**: Interactive Job Matcher recommending tailored jobs based on the parsed resume.
 
 ### Phase 4: Application Materials & Mock Interview Prep Agents
@@ -218,8 +218,8 @@ AI Career Co-Pilot/
 - Cover letter guardrail flags a hallucinated company name
 
 # 1. Run the Frontend dev server
-npm run dev
+npm --prefix frontend run dev
 
 # 2. In another terminal, run the FastAPI Backend
-npm run backend
+.\.venv\Scripts\uvicorn backend.main:app --reload --port 8000
 # or: .\.venv\Scripts\uvicorn backend.main:app --reload --port 8000

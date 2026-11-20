@@ -52,19 +52,21 @@ export interface ResumeAnalysisResult {
   ats_feedback: string[];
 }
 
+export interface JobDescription {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  description: string;
+  requirements: string[];
+  salary_range?: string;
+  employment_type?: string;
+  posted_date?: string;
+  apply_url?: string;
+}
+
 export interface JobMatchResult {
-  job: {
-    id: string;
-    title: string;
-    company: string;
-    location: string;
-    description: string;
-    requirements: string[];
-    salary_range?: string;
-    employment_type?: string;
-    posted_date?: string;
-    apply_url?: string;
-  };
+  job: JobDescription;
   match_percentage: number;
   reasoning: {
     fit_summary: string;
@@ -190,9 +192,41 @@ export async function fetchResumeAnalysis(sessionId: string): Promise<ResumeAnal
   return res.json();
 }
 
-export async function fetchJobMatches(): Promise<JobMatchResult[]> {
-  const res = await fetch(`${API_BASE_URL}/api/jobs/matches`, { cache: "no-store" });
+export async function fetchJobMatches(params?: {
+  sessionId?: string;
+  query?: string;
+  location?: string;
+  remoteOnly?: boolean;
+  minMatch?: number;
+}): Promise<JobMatchResult[]> {
+  const queryParams = new URLSearchParams();
+  queryParams.set("session_id", params?.sessionId || "default-session");
+  if (params?.query) queryParams.set("query", params.query);
+  if (params?.location) queryParams.set("location", params.location);
+  if (params?.remoteOnly) queryParams.set("remote_only", "true");
+  if (params?.minMatch !== undefined) queryParams.set("min_match", params.minMatch.toString());
+
+  const res = await fetch(`${API_BASE_URL}/api/jobs/matches?${queryParams.toString()}`, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to fetch job matches: ${res.status}`);
+  return res.json();
+}
+
+export async function selectTargetJob(
+  jobId: string,
+  sessionId: string = "default-session"
+): Promise<{ status: string; selected_job: JobDescription }> {
+  const res = await fetch(`${API_BASE_URL}/api/jobs/select`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId, job_id: jobId }),
+  });
+  if (!res.ok) throw new Error(`Failed to select target job: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchJobById(jobId: string): Promise<JobDescription> {
+  const res = await fetch(`${API_BASE_URL}/api/jobs/${jobId}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to fetch job: ${res.status}`);
   return res.json();
 }
 
