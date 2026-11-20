@@ -5,7 +5,6 @@ import {
   UploadCloud,
   CheckCircle2,
   AlertTriangle,
-  Sparkles,
   RefreshCw,
   FileText,
   Copy,
@@ -15,18 +14,14 @@ import {
   Mail,
   Phone,
   MapPin,
-  ChevronRight,
-  TrendingUp,
-  Cpu,
-  Layers,
-  Settings
+  CheckCircle,
+  HelpCircle
 } from "lucide-react";
 import {
   fetchSampleAnalysis,
   uploadResume,
   analyzeResumeText,
-  ResumeAnalysisResult,
-  CandidateProfile
+  ResumeAnalysisResult
 } from "@/lib/api";
 
 const PRESET_JOBS = [
@@ -67,14 +62,14 @@ export default function ResumePage() {
 
   const loadInitialAnalysis = async () => {
     setLoading(true);
-    setStatusMessage("Fetching ATS analysis...");
+    setStatusMessage("Loading sample analysis...");
     try {
       const data = await fetchSampleAnalysis();
       setAnalysis(data);
       setStatusMessage("");
     } catch (err) {
       console.error("Failed to load initial analysis:", err);
-      setStatusMessage("Failed to reach backend. Check if FastAPI is running.");
+      setStatusMessage("Failed to reach backend. Make sure the FastAPI server is running.");
     } finally {
       setLoading(false);
     }
@@ -85,7 +80,7 @@ export default function ResumePage() {
       const file = e.target.files[0];
       setSelectedFileName(file.name);
       setUploading(true);
-      setStatusMessage("Extracting layout & text with PyMuPDF...");
+      setStatusMessage("Parsing document and auditing ATS compatibility...");
 
       try {
         const activeJob = PRESET_JOBS[selectedJobIndex];
@@ -96,11 +91,12 @@ export default function ResumePage() {
           activeJob.description
         );
         setAnalysis(result);
-        setStatusMessage("Analysis complete!");
+        setStatusMessage("Analysis complete.");
         setTimeout(() => setStatusMessage(""), 2500);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Upload failed:", err);
-        setStatusMessage(err.message || "Upload and parsing failed.");
+        const msg = err instanceof Error ? err.message : "Upload and parsing failed.";
+        setStatusMessage(msg);
       } finally {
         setUploading(false);
       }
@@ -138,22 +134,16 @@ export default function ResumePage() {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-emerald-400 border-emerald-500/30 bg-emerald-500/10";
-    if (score >= 65) return "text-amber-400 border-amber-500/30 bg-amber-500/10";
-    return "text-rose-400 border-rose-500/30 bg-rose-500/10";
-  };
-
   const getSkillCategoryBadge = (category: string) => {
     switch (category) {
       case "domain":
-        return "bg-purple-500/15 border-purple-500/30 text-purple-300";
+        return "bg-purple-50 text-purple-700 border-purple-200";
       case "tool":
-        return "bg-amber-500/15 border-amber-500/30 text-amber-300";
+        return "bg-amber-50 text-amber-800 border-amber-200";
       case "soft":
-        return "bg-emerald-500/15 border-emerald-500/30 text-emerald-300";
+        return "bg-emerald-50 text-emerald-800 border-emerald-200";
       default:
-        return "bg-cyan-500/15 border-cyan-500/30 text-cyan-300";
+        return "bg-blue-50 text-blue-700 border-blue-200";
     }
   };
 
@@ -162,52 +152,53 @@ export default function ResumePage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-semibold text-cyan-300 mb-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            <span>Phase 2: Ingestion, Extraction & RAG Scoring</span>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200 mb-2">
+            <span>Resume Review & ATS Compatibility</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Resume Ingestion & RAG Scoring Engine</h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Extracts candidate profiles with PyMuPDF, scores layout & skill compatibility via ATS RAG rules, and rewrites bullets with quantified impact.
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+            Resume Audit & Improvement Feedback
+          </h1>
+          <p className="text-sm text-slate-600 mt-1">
+            Check formatting compliance, identify missing role requirements, and review suggested bullet point improvements.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={loadInitialAnalysis}
             disabled={loading || uploading}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-xs font-medium text-slate-200 border border-white/[0.08] transition-all hover:border-cyan-500/30 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-xs font-medium text-slate-700 border border-slate-300 transition-colors shadow-xs disabled:opacity-50"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-cyan-400" : ""}`} />
-            <span>Reload Analysis</span>
+            <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${loading ? "animate-spin" : ""}`} />
+            <span>Refresh Analysis</span>
           </button>
         </div>
       </div>
 
       {statusMessage && (
-        <div className="p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200 flex items-center gap-2 animate-fadeIn">
-          <Sparkles className="w-4 h-4 text-cyan-400 animate-spin" />
+        <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-xs text-blue-800 flex items-center gap-2 font-medium">
+          <RefreshCw className="w-3.5 h-3.5 text-blue-600 animate-spin" />
           <span>{statusMessage}</span>
         </div>
       )}
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Upload & Target Role Context */}
         <div className="space-y-6">
           {/* Resume Upload Dropzone */}
-          <div className="glass-panel p-6 rounded-2xl border border-white/[0.08] space-y-4">
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                <UploadCloud className="w-4 h-4 text-cyan-400" />
-                <span>Resume Upload</span>
+              <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                <UploadCloud className="w-4 h-4 text-slate-600" />
+                <span>Upload Document</span>
               </h2>
-              <span className="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">PyMuPDF</span>
+              <span className="text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+                PDF or Word
+              </span>
             </div>
 
-            <label
-              className="relative border-2 border-dashed border-slate-700 hover:border-cyan-500/50 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-slate-900/40 hover:bg-slate-900/60 group"
-            >
+            <label className="relative border-2 border-dashed border-slate-300 hover:border-slate-400 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-slate-50 hover:bg-slate-100/60 group">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -216,73 +207,71 @@ export default function ResumePage() {
                 onChange={handleFileUpload}
                 disabled={uploading}
               />
-              <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <FileText className={`w-6 h-6 text-cyan-400 ${uploading ? "animate-pulse" : ""}`} />
+              <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center mb-2.5 shadow-xs">
+                <FileText className="w-5 h-5 text-slate-600" />
               </div>
-              <p className="text-sm font-medium text-slate-200 mb-1">
-                {uploading ? "Extracting & Scoring with RAG..." : "Drop resume here or browse"}
+              <p className="text-xs font-medium text-slate-800 mb-0.5">
+                {uploading ? "Extracting and analyzing..." : "Click to upload or drag & drop"}
               </p>
-              <p className="text-xs text-slate-500">Supports PDF, DOCX, or TXT up to 10MB</p>
+              <p className="text-[11px] text-slate-500">PDF, DOCX, or TXT up to 10MB</p>
             </label>
 
-            <div className="flex items-center justify-between text-xs text-slate-400 px-1 pt-1">
-              <span>Active File:</span>
-              <span className="font-mono text-cyan-300 truncate max-w-[180px]">{selectedFileName}</span>
+            <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+              <span>Active file:</span>
+              <span className="font-medium text-slate-800 truncate max-w-[180px]">{selectedFileName}</span>
             </div>
           </div>
 
           {/* Target Role Selector */}
-          <div className="glass-panel p-6 rounded-2xl border border-white/[0.08] space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-cyan-400" />
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-slate-600" />
                 <span>Target Role Benchmark</span>
               </h3>
-              <span className="text-[10px] text-slate-400">RAG Context</span>
+              <p className="text-xs text-slate-500 mt-1">
+                Select a position to calculate requirement match and skill gaps:
+              </p>
             </div>
-            <p className="text-xs text-slate-400">
-              Select a target role to benchmark candidate skills, experience relevance, and keyword density:
-            </p>
 
-            <div className="space-y-2">
+            <div className="space-y-2 pt-1">
               {PRESET_JOBS.map((job, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleJobChange(idx)}
-                  className={`w-full text-left p-3 rounded-xl border transition-all text-xs space-y-1 ${
+                  className={`w-full text-left p-3 rounded-lg border transition-all text-xs space-y-0.5 ${
                     selectedJobIndex === idx
-                      ? "bg-cyan-950/30 border-cyan-500/40 text-cyan-200 shadow-sm shadow-cyan-950"
-                      : "bg-slate-900/50 border-slate-800 text-slate-300 hover:border-slate-700"
+                      ? "bg-blue-50/70 border-blue-300 text-blue-900 shadow-xs"
+                      : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-white">{job.title}</span>
-                    {selectedJobIndex === idx && <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />}
+                    <span className="font-semibold text-slate-900">{job.title}</span>
+                    {selectedJobIndex === idx && <CheckCircle2 className="w-4 h-4 text-blue-600" />}
                   </div>
-                  <p className="text-[11px] text-slate-400">{job.company}</p>
+                  <p className="text-[11px] text-slate-500">{job.company}</p>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* ATS Optimization Rules Seeded from RAG */}
-          <div className="glass-panel p-6 rounded-2xl border border-white/[0.08] space-y-3">
-            <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Layers className="w-4 h-4 text-purple-400" />
-              <span>Active ATS Rubric Guidelines</span>
+          {/* ATS Rubric Guidelines */}
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
+            <h3 className="text-sm font-semibold text-slate-900">
+              Evaluation Criteria
             </h3>
-            <div className="space-y-2 text-xs text-slate-300">
-              <div className="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800">
-                <p className="font-medium text-slate-200">Google XYZ Impact Metric</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">Accomplished [X] as measured by [Y], by doing [Z].</p>
+            <div className="space-y-2 text-xs text-slate-600">
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                <p className="font-medium text-slate-800">Quantified Outcomes (XYZ Formula)</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">Accomplished [X] as measured by [Y], by doing [Z].</p>
               </div>
-              <div className="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800">
-                <p className="font-medium text-slate-200">Strong Technical Action Verbs</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">Penalizes passive verbs like 'worked on' or 'helped with'.</p>
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                <p className="font-medium text-slate-800">Clear Action Verbs</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">Prefers precise verbs over passive phrases like 'worked on'.</p>
               </div>
-              <div className="p-2.5 rounded-lg bg-slate-900/60 border border-slate-800">
-                <p className="font-medium text-slate-200">Single-Column Parsability</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">Ensures no tables or complex columns break parser ingestion.</p>
+              <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                <p className="font-medium text-slate-800">Clean Formatting</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">Standard headers and linear single-column structure for reliable parsing.</p>
               </div>
             </div>
           </div>
@@ -291,189 +280,184 @@ export default function ResumePage() {
         {/* Right Column: Analysis Results or Extracted Profile */}
         <div className="lg:col-span-2 space-y-6">
           {/* View Mode Tabs */}
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setActiveTab("analysis")}
-                className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   activeTab === "analysis"
-                    ? "bg-cyan-500/15 border border-cyan-500/30 text-cyan-300"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-slate-900 text-white"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                 }`}
               >
-                ATS Match & Scoring
+                Score Breakdown
               </button>
               <button
                 onClick={() => setActiveTab("profile")}
-                className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   activeTab === "profile"
-                    ? "bg-cyan-500/15 border border-cyan-500/30 text-cyan-300"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-slate-900 text-white"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                 }`}
               >
-                Extracted Profile ({analysis?.profile.skills.length || 0} skills)
+                Extracted Data ({analysis?.profile.skills.length || 0} skills)
               </button>
             </div>
 
             {analysis && (
-              <span className="text-xs text-slate-400">
-                Candidate: <strong className="text-slate-200">{analysis.profile.full_name}</strong>
+              <span className="text-xs text-slate-500">
+                Candidate: <strong className="text-slate-800 font-semibold">{analysis.profile.full_name}</strong>
               </span>
             )}
           </div>
 
           {loading ? (
-            <div className="glass-panel p-16 rounded-2xl border border-white/[0.08] flex flex-col items-center justify-center gap-3">
-              <RefreshCw className="w-8 h-8 text-cyan-400 animate-spin" />
-              <p className="text-sm font-medium text-slate-300">Evaluating resume against ATS benchmarks...</p>
-              <p className="text-xs text-slate-500">Retrieving RAG rules & computing sub-score vectors</p>
+            <div className="bg-white p-12 rounded-xl border border-slate-200 flex flex-col items-center justify-center gap-3">
+              <RefreshCw className="w-6 h-6 text-slate-400 animate-spin" />
+              <p className="text-sm font-medium text-slate-700">Evaluating resume against benchmarks...</p>
+              <p className="text-xs text-slate-400">Auditing keywords, impact phrasing, and formatting readability</p>
             </div>
           ) : analysis ? (
             activeTab === "analysis" ? (
               <>
-                {/* Overall Score Banner */}
-                <div className="glass-panel p-6 rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-cyan-950/30 via-slate-900/70 to-indigo-950/30 grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
-                  <div className="space-y-1">
-                    <p className="text-4xl font-extrabold text-cyan-400">
-                      {analysis.score_breakdown.overall_score}%
-                    </p>
-                    <p className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Overall Match</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-2xl font-bold text-slate-200">
-                      {analysis.score_breakdown.skills_match}%
-                    </p>
-                    <p className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Skills Coverage</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-2xl font-bold text-slate-200">
-                      {analysis.score_breakdown.experience_relevance}%
-                    </p>
-                    <p className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Relevance</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-2xl font-bold text-slate-200">
-                      {analysis.score_breakdown.ats_readability}%
-                    </p>
-                    <p className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">ATS Parsability</p>
-                  </div>
-                  <div className="space-y-1 col-span-2 sm:col-span-1">
-                    <p className="text-2xl font-bold text-slate-200">
-                      {analysis.score_breakdown.action_verbs_metric}%
-                    </p>
-                    <p className="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Impact Verbs</p>
+                {/* Overall Score Summary */}
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center divide-x divide-slate-100">
+                    <div className="space-y-1">
+                      <p className="text-3xl font-bold text-slate-900">
+                        {analysis.score_breakdown.overall_score}%
+                      </p>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Overall Match</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-2xl font-semibold text-slate-800">
+                        {analysis.score_breakdown.skills_match}%
+                      </p>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Skills</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-2xl font-semibold text-slate-800">
+                        {analysis.score_breakdown.experience_relevance}%
+                      </p>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Relevance</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-2xl font-semibold text-slate-800">
+                        {analysis.score_breakdown.ats_readability}%
+                      </p>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Parsability</p>
+                    </div>
+                    <div className="space-y-1 col-span-2 sm:col-span-1">
+                      <p className="text-2xl font-semibold text-slate-800">
+                        {analysis.score_breakdown.action_verbs_metric}%
+                      </p>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Impact Verbs</p>
+                    </div>
                   </div>
                 </div>
 
                 {/* Strengths & Missing Skills */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="glass-panel p-5 rounded-2xl border border-white/[0.08] space-y-3">
-                    <h3 className="text-sm font-semibold text-emerald-300 flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span>Identified Strengths</span>
+                  <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
+                    <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      <span>Key Strengths</span>
                     </h3>
                     <ul className="space-y-2">
                       {analysis.key_strengths.map((str, i) => (
-                        <li key={i} className="text-xs text-slate-300 flex items-start gap-2">
-                          <span className="text-emerald-400 mt-0.5">•</span>
+                        <li key={i} className="text-xs text-slate-600 flex items-start gap-2">
+                          <span className="text-emerald-600 font-bold">•</span>
                           <span>{str}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="glass-panel p-5 rounded-2xl border border-white/[0.08] space-y-3">
-                    <h3 className="text-sm font-semibold text-amber-300 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-amber-400" />
-                      <span>Skill Gaps for Target Role</span>
+                  <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
+                    <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-600" />
+                      <span>Missing Target Skills</span>
                     </h3>
-                    <p className="text-[11px] text-slate-400">Technologies found in JD but missing in resume:</p>
-                    <div className="flex flex-wrap gap-2 pt-1">
+                    <p className="text-[11px] text-slate-500">Skills in the job posting not detected on your resume:</p>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
                       {analysis.missing_skills.map((skill, i) => (
                         <span
                           key={i}
-                          className="px-2.5 py-1 text-xs rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 font-medium"
+                          className="px-2.5 py-1 text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 font-medium"
                         >
-                          + {skill}
+                          {skill}
                         </span>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                {/* AI Bullet Rewrite Suggestions */}
-                <div className="glass-panel p-6 rounded-2xl border border-white/[0.08] space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-cyan-400" />
-                        <span>AI Bullet Rewrite Suggestions</span>
-                      </h3>
-                      <p className="text-xs text-slate-400">Rewritten using Google XYZ formula & strong action verbs</p>
-                    </div>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-                      STAR + Metrics
-                    </span>
+                {/* Bullet Suggestions */}
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-900">
+                      Suggested Bullet Point Revisions
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Examples of how to rewrite your bullets to include concrete numbers and stronger action verbs.
+                    </p>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {analysis.bullet_suggestions.map((sug, idx) => (
-                      <div key={idx} className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3 hover:border-slate-700 transition-colors">
+                      <div key={idx} className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-3">
                         <div className="space-y-1">
-                          <p className="text-[11px] font-semibold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
-                            <span>Original Weak Bullet</span>
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                            Original Bullet
                           </p>
-                          <p className="text-xs text-slate-400 line-through pl-1">{sug.original_bullet}</p>
+                          <p className="text-xs text-slate-500 line-through pl-1">{sug.original_bullet}</p>
                         </div>
 
                         <div className="space-y-1.5">
                           <div className="flex items-center justify-between">
-                            <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                              <span>Optimized High-Impact Bullet</span>
-                              <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-[10px] text-emerald-300">
-                                Quantified Metric
-                              </span>
+                            <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+                              <span>Recommended Revision</span>
                             </p>
                             <button
                               onClick={() => copyToClipboard(sug.improved_bullet, idx)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-medium text-slate-300 border border-slate-700 hover:border-cyan-500/40 transition-colors"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white hover:bg-slate-100 text-[11px] font-medium text-slate-700 border border-slate-300 transition-colors shadow-xs"
                             >
                               {copiedIndex === idx ? (
                                 <>
-                                  <Check className="w-3 h-3 text-emerald-400" />
-                                  <span className="text-emerald-400">Copied</span>
+                                  <Check className="w-3 h-3 text-emerald-600" />
+                                  <span className="text-emerald-700">Copied</span>
                                 </>
                               ) : (
                                 <>
-                                  <Copy className="w-3 h-3 text-slate-400" />
+                                  <Copy className="w-3 h-3 text-slate-500" />
                                   <span>Copy</span>
                                 </>
                               )}
                             </button>
                           </div>
-                          <p className="text-xs text-slate-100 font-medium pl-1 bg-emerald-950/20 p-2 rounded-lg border border-emerald-500/20">
+                          <p className="text-xs text-slate-900 font-medium pl-1 bg-white p-2.5 rounded border border-emerald-200/80">
                             {sug.improved_bullet}
                           </p>
                         </div>
 
-                        <p className="text-[11px] text-slate-400 italic pl-1">
-                          💡 <span className="font-semibold text-slate-300">Rationale:</span> {sug.reason}
+                        <p className="text-[11px] text-slate-500 pl-1">
+                          <span className="font-semibold text-slate-700">Why this works:</span> {sug.reason}
                         </p>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* ATS Readability Feedback */}
-                <div className="glass-panel p-5 rounded-2xl border border-white/[0.08] space-y-3">
-                  <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-cyan-400" />
-                    <span>ATS Parsability & Formatting Feedback</span>
+                {/* ATS Formatting Checklist */}
+                <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-3">
+                  <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-slate-600" />
+                    <span>Formatting & Structure Checklist</span>
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-300">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-slate-600">
                     {analysis.ats_feedback.map((item, idx) => (
-                      <div key={idx} className="p-2.5 rounded-xl bg-slate-900/40 border border-slate-800/80 flex items-start gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 mt-0.5 shrink-0" />
+                      <div key={idx} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 mt-0.5 shrink-0" />
                         <span>{item}</span>
                       </div>
                     ))}
@@ -484,28 +468,28 @@ export default function ResumePage() {
               /* Profile Tab */
               <div className="space-y-6">
                 {/* Header Profile Card */}
-                <div className="glass-panel p-6 rounded-2xl border border-white/[0.08] space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
                     <div>
-                      <h2 className="text-xl font-bold text-white">{analysis.profile.full_name}</h2>
-                      <p className="text-sm text-cyan-300">{analysis.profile.headline || "Engineering Professional"}</p>
+                      <h2 className="text-lg font-bold text-slate-900">{analysis.profile.full_name}</h2>
+                      <p className="text-xs text-slate-500">{analysis.profile.headline || "Engineering Professional"}</p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
                       {analysis.profile.email && (
                         <span className="flex items-center gap-1.5">
-                          <Mail className="w-3.5 h-3.5 text-cyan-400" />
+                          <Mail className="w-3.5 h-3.5 text-slate-400" />
                           <span>{analysis.profile.email}</span>
                         </span>
                       )}
                       {analysis.profile.phone && (
                         <span className="flex items-center gap-1.5">
-                          <Phone className="w-3.5 h-3.5 text-cyan-400" />
+                          <Phone className="w-3.5 h-3.5 text-slate-400" />
                           <span>{analysis.profile.phone}</span>
                         </span>
                       )}
                       {analysis.profile.location && (
                         <span className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-cyan-400" />
+                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
                           <span>{analysis.profile.location}</span>
                         </span>
                       )}
@@ -514,32 +498,25 @@ export default function ResumePage() {
 
                   {analysis.profile.summary && (
                     <div className="space-y-1">
-                      <p className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Executive Summary</p>
-                      <p className="text-xs text-slate-300 leading-relaxed">{analysis.profile.summary}</p>
+                      <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Summary</p>
+                      <p className="text-xs text-slate-700 leading-relaxed">{analysis.profile.summary}</p>
                     </div>
                   )}
                 </div>
 
-                {/* Categorized Skills Section */}
-                <div className="glass-panel p-6 rounded-2xl border border-white/[0.08] space-y-3">
+                {/* Categorized Skills */}
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                      <Cpu className="w-4 h-4 text-cyan-400" />
-                      <span>Extracted Skills Taxonomy ({analysis.profile.skills.length})</span>
+                    <h3 className="text-sm font-semibold text-slate-900">
+                      Detected Skills ({analysis.profile.skills.length})
                     </h3>
-                    <div className="flex items-center gap-2 text-[10px]">
-                      <span className="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300">Technical</span>
-                      <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300">Domain</span>
-                      <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300">Tool</span>
-                      <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300">Soft</span>
-                    </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 pt-2">
+                  <div className="flex flex-wrap gap-1.5 pt-1">
                     {analysis.profile.skills.map((skill, idx) => (
                       <span
                         key={idx}
-                        className={`px-3 py-1 text-xs rounded-xl border font-medium flex items-center gap-1.5 ${getSkillCategoryBadge(
+                        className={`px-2.5 py-1 text-xs rounded-md border font-medium flex items-center gap-1.5 ${getSkillCategoryBadge(
                           skill.category
                         )}`}
                       >
@@ -552,28 +529,27 @@ export default function ResumePage() {
                   </div>
                 </div>
 
-                {/* Work Experience Section */}
-                <div className="glass-panel p-6 rounded-2xl border border-white/[0.08] space-y-4">
-                  <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-cyan-400" />
-                    <span>Work Experience ({analysis.profile.experience.length})</span>
+                {/* Experience */}
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    Work History ({analysis.profile.experience.length})
                   </h3>
 
                   <div className="space-y-4">
                     {analysis.profile.experience.map((exp, idx) => (
-                      <div key={idx} className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+                      <div key={idx} className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                          <p className="font-semibold text-slate-100 text-sm">{exp.title}</p>
-                          <span className="text-xs text-cyan-400 font-mono">
+                          <p className="font-semibold text-slate-900 text-sm">{exp.title}</p>
+                          <span className="text-xs text-slate-500 font-mono">
                             {exp.start_date || "2022"} — {exp.end_date || "Present"}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-400 font-medium">{exp.company} • {exp.location || "United States"}</p>
+                        <p className="text-xs text-slate-600 font-medium">{exp.company} • {exp.location || "United States"}</p>
                         
                         <ul className="space-y-1.5 pt-2">
                           {exp.bullets.map((bullet, bIdx) => (
-                            <li key={bIdx} className="text-xs text-slate-300 flex items-start gap-2">
-                              <span className="text-cyan-400 mt-0.5">•</span>
+                            <li key={bIdx} className="text-xs text-slate-600 flex items-start gap-2">
+                              <span className="text-slate-400 mt-0.5">•</span>
                               <span>{bullet}</span>
                             </li>
                           ))}
@@ -583,19 +559,19 @@ export default function ResumePage() {
                   </div>
                 </div>
 
-                {/* Education Section */}
+                {/* Education */}
                 {analysis.profile.education.length > 0 && (
-                  <div className="glass-panel p-6 rounded-2xl border border-white/[0.08] space-y-3">
-                    <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                      <GraduationCap className="w-4 h-4 text-cyan-400" />
+                  <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-3">
+                    <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4 text-slate-600" />
                       <span>Education</span>
                     </h3>
                     <div className="space-y-2">
                       {analysis.profile.education.map((edu, idx) => (
-                        <div key={idx} className="p-3 rounded-xl bg-slate-900/40 border border-slate-800 text-xs flex justify-between items-center">
+                        <div key={idx} className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs flex justify-between items-center">
                           <div>
-                            <p className="font-semibold text-slate-200">{edu.degree}</p>
-                            <p className="text-slate-400">{edu.institution} {edu.field_of_study ? `• ${edu.field_of_study}` : ""}</p>
+                            <p className="font-semibold text-slate-800">{edu.degree}</p>
+                            <p className="text-slate-500">{edu.institution} {edu.field_of_study ? `• ${edu.field_of_study}` : ""}</p>
                           </div>
                           {edu.graduation_year && (
                             <span className="text-xs text-slate-400 font-mono">{edu.graduation_year}</span>

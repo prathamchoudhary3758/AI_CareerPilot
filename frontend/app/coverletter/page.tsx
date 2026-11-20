@@ -33,40 +33,44 @@ export default function CoverLetterPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 pb-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs font-semibold text-purple-300 mb-2">
-            <span>Phase 4 Agent Shell</span>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200 mb-2">
+            <span>Cover Letter Writer</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Cover Letter & Application Agent</h1>
-          <p className="text-sm text-slate-400">Contextual cover letter synthesis paired with hallucination guardrail verification.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+            Tailored Cover Letter
+          </h1>
+          <p className="text-sm text-slate-600 mt-1">
+            Generate role-specific application letters matching your verified background and experience.
+          </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Controls */}
-        <div className="space-y-6">
-          <div className="glass-panel p-6 rounded-2xl border border-white/[0.08] space-y-4">
-            <h2 className="text-sm font-semibold text-white">Tone & Parameters</h2>
+        <div className="space-y-5">
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+            <h2 className="text-sm font-semibold text-slate-900">Tone & Format</h2>
             <div className="space-y-2">
-              {["professional", "enthusiastic", "concise"].map((t) => (
+              {[
+                { id: "professional", label: "Professional", desc: "Balanced and formal, emphasizing outcomes and metrics." },
+                { id: "enthusiastic", label: "Engaged", desc: "Expresses strong interest in company mission and tech stack." },
+                { id: "concise", label: "Concise", desc: "Short, bullet-oriented structure for quick reading." }
+              ].map((t) => (
                 <button
-                  key={t}
-                  onClick={() => setTone(t)}
-                  className={`w-full text-left px-4 py-3 rounded-xl border text-xs font-medium capitalize transition-all ${
-                    tone === t
-                      ? "bg-cyan-500/10 border-cyan-500/40 text-cyan-300"
-                      : "bg-slate-900/40 border-slate-800 text-slate-400 hover:border-slate-700"
+                  key={t.id}
+                  onClick={() => setTone(t.id)}
+                  className={`w-full text-left px-3.5 py-2.5 rounded-lg border text-xs font-medium transition-all ${
+                    tone === t.id
+                      ? "bg-blue-50/70 border-blue-300 text-blue-900 shadow-xs"
+                      : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
                   }`}
                 >
-                  <p className="font-semibold text-slate-200">{t}</p>
-                  <p className="text-[11px] text-slate-500">
-                    {t === "professional" && "Balanced, formal, emphasizing metrics & outcomes."}
-                    {t === "enthusiastic" && "High energy, forward-looking, mission-aligned."}
-                    {t === "concise" && "Direct, high-impact bullet points, quick scan."}
-                  </p>
+                  <p className="font-semibold text-slate-900">{t.label}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">{t.desc}</p>
                 </button>
               ))}
             </div>
@@ -74,44 +78,44 @@ export default function CoverLetterPage() {
             <button
               onClick={handleGenerate}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-medium text-xs shadow-lg shadow-cyan-500/20 transition-all disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs transition-colors shadow-xs disabled:opacity-50"
             >
               {loading ? (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>Synthesizing Tailored Letter...</span>
+                  <span>Drafting Letter...</span>
                 </>
               ) : (
                 <>
                   <PenTool className="w-3.5 h-3.5" />
-                  <span>Generate Tailored Letter</span>
+                  <span>Generate Letter</span>
                 </>
               )}
             </button>
           </div>
 
           {/* Guardrail Status Card */}
-          <div className="glass-panel p-6 rounded-2xl border border-white/[0.08] space-y-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Anti-Hallucination Guardrail</span>
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-2.5">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Fact-Checking Standard</span>
             </h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Every factual assertion, company mention, and quantitative achievement is cross-checked against your parsed resume facts before finalizing.
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Every factual assertion and technical skill mentioned in the letter is checked against your resume before finalizing.
             </p>
-            <div className="p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-800/30 text-[11px] text-emerald-300">
-              ✓ Ground-truth verification active
+            <div className="p-2 rounded bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 font-medium">
+              ✓ Ground-truth cross-check enabled
             </div>
           </div>
         </div>
 
         {/* Editor Area */}
-        <div className="lg:col-span-2 glass-panel p-6 rounded-2xl border border-white/[0.08] space-y-4 flex flex-col">
-          <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+        <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4 flex flex-col">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
-              <h3 className="text-sm font-semibold text-white">Cover Letter Draft</h3>
-              <p className="text-xs text-slate-400">
-                {result ? `${result.word_count} words • Tone: ${result.tone}` : "Click Generate to synthesize"}
+              <h3 className="text-sm font-semibold text-slate-900">Application Letter Draft</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {result ? `${result.word_count} words • Tone: ${result.tone}` : "Click Generate to create a tailored draft"}
               </p>
             </div>
 
@@ -119,17 +123,17 @@ export default function CoverLetterPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopy}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-white/[0.06] transition-colors"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-white hover:bg-slate-50 text-xs font-medium text-slate-700 border border-slate-300 transition-colors shadow-xs"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
                   <span>{copied ? "Copied" : "Copy"}</span>
                 </button>
                 <button
-                  onClick={() => alert("Downloaded letter as .txt / markdown")}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-white/[0.06] transition-colors"
+                  onClick={() => alert("Letter ready to export")}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-white hover:bg-slate-50 text-xs font-medium text-slate-700 border border-slate-300 transition-colors shadow-xs"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download</span>
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Export</span>
                 </button>
               </div>
             )}
@@ -138,8 +142,8 @@ export default function CoverLetterPage() {
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Click 'Generate Tailored Letter' on the left to synthesize a tailored, fact-checked cover letter."
-            className="flex-1 w-full min-h-[420px] p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-slate-200 font-sans text-sm leading-relaxed focus:outline-none focus:border-cyan-500/50 resize-y"
+            placeholder="Click 'Generate Letter' on the left to create a draft tailored to your target position."
+            className="flex-1 w-full min-h-[400px] p-4 rounded-lg bg-slate-50/50 border border-slate-200 text-slate-900 font-sans text-sm leading-relaxed focus:outline-none focus:bg-white focus:border-slate-400 transition-colors resize-y"
           />
         </div>
       </div>
